@@ -19,9 +19,12 @@ Page.refresh = (options = {}, callback) ->
   if options.response
     onlyKeys   = options.onlyKeys   || []
     exceptKeys = options.exceptKeys || []
-    Turbolinks.loadPage null, options.response, true, callback, onlyKeys, exceptKeys
+    Turbolinks.loadPage null, options.response, true, true, callback, onlyKeys, exceptKeys
   else
-    Turbolinks.visit newUrl, true, options.onlyKeys || [], -> callback?()
+    updatePushState = options.updatePushState
+    updatePushState ?= true
+
+    Turbolinks.visit newUrl, true, updatePushState, options.onlyKeys || [], -> callback?()
 
 Page.open = ->
   window.open(arguments...)

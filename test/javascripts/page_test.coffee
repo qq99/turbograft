@@ -65,7 +65,7 @@ describe 'Page', ->
       , afterRefreshCallback
 
       assert loadPageStub.calledOnce
-      assert loadPageStub.calledWith null, "placeholder for an XHR", true, afterRefreshCallback, ['a', 'b']
+      assert loadPageStub.calledWith null, "placeholder for an XHR", true, true, afterRefreshCallback, ['a', 'b']
       loadPageStub.restore()
 
     it 'updates window push state when response is a redirect', ->

@@ -58,13 +58,13 @@ class window.Turbolinks
   loadedAssets = null
   referer = null
 
-  fetch = (url, partialReplace = false, replaceContents = [], callback) ->
+  fetch = (url, partialReplace = false, updatePushState = true, replaceContents = [], callback) ->
     return if pageChangePrevented(url)
     url = new ComponentUrl url
 
     rememberReferer()
 
-    fetchReplacement url, partialReplace, ->
+    fetchReplacement url, partialReplace, updatePushState, ->
       resetScrollPosition() unless replaceContents.length
       callback?()
     , replaceContents
@@ -75,7 +75,7 @@ class window.Turbolinks
   @replaceState: (state, title, url) ->
     window.history.replaceState(state, title, url)
 
-  fetchReplacement = (url, partialReplace, onLoadFunction, replaceContents) ->
+  fetchReplacement = (url, partialReplace, updatePushState, onLoadFunction, replaceContents) ->
     triggerEvent 'page:fetch', url: url.absolute
 
     xhr?.abort()
@@ -88,7 +88,7 @@ class window.Turbolinks
       if xhr.status >= 500
         document.location.href = url.absolute
       else
-        Turbolinks.loadPage(url, xhr, partialReplace, onLoadFunction, replaceContents)
+        Turbolinks.loadPage(url, xhr, partialReplace, updatePushState, onLoadFunction, replaceContents)
 
     xhr.onloadend = -> xhr = null
     xhr.onerror   = ->
@@ -98,13 +98,13 @@ class window.Turbolinks
 
     return
 
-  @loadPage: (url, xhr, partialReplace = false, onLoadFunction = (->), replaceContents = [], replaceAllExcept = []) ->
+  @loadPage: (url, xhr, partialReplace = false, updatePushState = true, onLoadFunction = (->), replaceContents = [], replaceAllExcept = []) ->
     triggerEvent 'page:receive'
 
     if doc = processResponse(xhr, partialReplace)
-      reflectNewUrl url
+      reflectNewUrl url if updatePushState
       nodes = changePage(extractTitleAndBody(doc)..., partialReplace, replaceContents, replaceAllExcept)
-      reflectRedirectedUrl(xhr)
+      reflectRedirectedUrl(xhr) if updatePushState
       triggerEvent 'page:load', nodes
       onLoadFunction?()
     else
@@ -248,6 +248,7 @@ class window.Turbolinks
     node
 
   reflectNewUrl = (url) ->
+    debugger
     if (url = new ComponentUrl url).absolute isnt referer
       Turbolinks.pushState { turbolinks: true, url: url.absolute }, '', url.absolute
     return
