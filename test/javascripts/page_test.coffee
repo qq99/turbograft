@@ -65,14 +65,15 @@ describe 'Page', ->
     it 'calls Turbolinks#loadPage if an XHR is provided in opts.response', ->
       loadPageStub = stub(Turbolinks, "loadPage")
       afterRefreshCallback = stub()
+      fakeXhr = "placeholder for an XHR"
 
       Page.refresh
-        response: "placeholder for an XHR"
+        response: fakeXhr,
         onlyKeys: ['a', 'b']
       , afterRefreshCallback
 
       assert loadPageStub.calledOnce
-      assert loadPageStub.calledWith null, "placeholder for an XHR", { partialReplace: true, onLoadFunction: afterRefreshCallback, onlyKeys: ['a', 'b'] }
+      assert loadPageStub.calledWith null, fakeXhr, { onlyKeys: ['a', 'b'], partialReplace: true, onLoadFunction: afterRefreshCallback }
       loadPageStub.restore()
 
     it 'updates window push state when response is a redirect', ->
